@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calculadora de Data de Término de Curso</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 15px;
+      color: rgba(255, 0, 0, 0.605);
+      align-items: center;
+      text-align: center;
+      background-image: url('https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRrAqvZXsh0ijLlK80fL3T7evwU_1QIb3bS_IHlonKW0A&s');
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+    }
+    input[type="text"], select {
+      width: 150px;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result {
+      margin-top: 20px;
+    }
+    form{
+        width: 500px;
+        margin: 0 auto;
+        text-align: left;
+        font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+        font-size: 25px;
+        color:blue;
+        background-color: azure;
+        border-radius: 5px;
+        padding: 20px;
+    }
+    .resultado{
+      width: 500px;
+      background-color: aliceblue;
+      color: black;
+      text-align: left;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 5px;
+      font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Calculadora de Data de Término de Curso</h2>
+
+<form id="courseForm">
+  <label for="startDate">Data de Início do Curso:</label>
+  <input type="text" id="startDate" placeholder="DD/MM/AAAA">
+
+  <label for="courseHours">Carga Horária Total (em horas):</label>
+  <input type="text" id="courseHours" placeholder="Carga horária total do curso">
+
+  <label for="dailyHours">Horas por Dia:</label>
+  <input type="text" id="dailyHours" placeholder="Quantidade de horas aplicadas por dia">
+
+  <label for="daysOfWeek">Dias da Semana:</label>
+  <select id="daysOfWeek" multiple>
+    <option value="segunda">Segunda-feira</option>
+    <option value="terca">Terça-feira</option>
+    <option value="quarta">Quarta-feira</option>
+    <option value="quinta">Quinta-feira</option>
+    <option value="sexta">Sexta-feira</option>
+    <option value="sabado">Sábado</option>
+  </select>
+<br>
+  <button type="button" onclick="calculateEndDate()">Calcular Data de Término</button>
+</form>
+
+<div class="resultado" id="result"></div>
+
+<script>
+  function isHoliday(date) {
+    // Lista de feriados fixa (pode ser atualizada)
+    var holidays = ["01/01", "21/04", "01/05", "07/09", "12/10", "02/11", "15/11", "25/12"];
+
+    var dateParts = date.split('/');
+    var dateString = dateParts[0] + '/' + dateParts[1]; // Ignorando o ano para verificar apenas dia e mês
+
+    return holidays.includes(dateString);
+  }
+
+  function calculateEndDate() {
+    var startDate = document.getElementById('startDate').value;
+    var courseHours = parseInt(document.getElementById('courseHours').value);
+    var dailyHours = parseInt(document.getElementById('dailyHours').value);
+    var daysOfWeek = Array.from(document.getElementById('daysOfWeek').selectedOptions, option => option.value);
+
+    // Convertendo a data de início para objeto Date
+    var startDateParts = startDate.split('/');
+    var startDateObj = new Date(startDateParts[2], startDateParts[1] - 1, startDateParts[0]);
+
+    // Calculando a data final
+    var currentDate = new Date(startDateObj);
+    var totalHours = 0;
+    var weekdays = ['domingo', 'segunda', 'terca', 'quarta', 'quinta', 'sexta', 'sabado'];
+    var businessDays = [];
+
+    while (totalHours < courseHours) {
+      if (daysOfWeek.includes(weekdays[currentDate.getDay()]) && !isHoliday(currentDate.toLocaleDateString('pt-BR'))) {
+        businessDays.push(new Date(currentDate));
+        totalHours += dailyHours;
+      }
+      currentDate.setDate(currentDate.getDate() + 1); // Avança para o próximo dia
+    }
+
+    // Exibindo o resultado
+    var resultDiv = document.getElementById('result');
+    resultDiv.innerHTML = '<h3>Data de Término do Curso:</h3>';
+    resultDiv.innerHTML += '<p>' + businessDays[businessDays.length - 1].toLocaleDateString('pt-BR') + '</p>';
+    resultDiv.innerHTML += '<h3>Datas das Aulas:</h3>';
+    for (var i = 0; i < businessDays.length; i++) {
+      resultDiv.innerHTML += '<p>' + businessDays[i].toLocaleDateString('pt-BR') + '</p>';
+    }
+  }
+</script>
+
+</body>
+</html>
